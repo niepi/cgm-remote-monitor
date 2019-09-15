@@ -2,10 +2,8 @@ variables:
   VERSION_TAG: "0.12.3"
   SSH_OPTS: "-o StrictHostKeyChecking=no"
   PHP_MEMORY_LIMIT: "4096M"
-
 stages:
   - package
-
 docker:
   services:
     - name: docker:dind

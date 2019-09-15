@@ -1,0 +1,31 @@
+variables:
+  VERSION_TAG: "0.12.3"
+  SSH_OPTS: "-o StrictHostKeyChecking=no"
+  PHP_MEMORY_LIMIT: "4096M"
+
+stages:
+  - package
+
+docker:
+  services:
+    - name: docker:dind
+      entrypoint: ["env", "-u", "DOCKER_HOST"]
+      command: ["dockerd-entrypoint.sh"]
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_DRIVER: overlay2
+    # See https://github.com/docker-library/docker/pull/166
+    DOCKER_TLS_CERTDIR: ""
+  stage: package
+  image: docker:latest
+  tags:
+    - docker
+  script:
+    - docker info
+    - docker build -t registry.gitlab.com/niepi/cgm-remote-monitor:latest -t registry.gitlab.com/niepi/cgm-remote-monitor:${VERSION_TAG} .
+    - docker push registry.gitlab.com/niepi/cgm-remote-monitor
+    - docker rmi registry.gitlab.com/niepi/cgm-remote-monitor
+  cache: {}
+  except:
+    - tags
+    - schedules
